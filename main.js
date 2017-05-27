@@ -81,20 +81,19 @@ document.addEventListener("DOMContentLoaded", function () {
                 var atIdx = lettersAlreadySeen.indexOf(cipherLetter);
                 if (atIdx > -1) {
                     //already seen this letter at atIdx
-                    stuff = '\\' + seenAtIndex[atIdx];
                     seenAgain.push(atIdx);
+                    return '\\' + seenAtIndex[atIdx];
                 } else {
-                    stuff = cipherLetter.getRegExpStr();
                     lettersAlreadySeen.push(cipherLetter);
                     seenAtIndex.push(index);
+                    return cipherLetter.getRegExpStr();
                 }
-                return stuff;
             });
             lettersAlreadySeen.forEach(function (el, i) {
                 //If there were multiple instances of this letter,
                 // surround the first instance with '()'
                 if (seenAgain.indexOf(i) > -1) {
-                    resultArray[i] = '(' + el + ')';
+                    resultArray[i] = '(' + resultArray[i] + ')';
                 }
             });
             return resultArray;
