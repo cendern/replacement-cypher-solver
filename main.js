@@ -74,15 +74,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
             var lettersAlreadySeen = [];
             var seenAtIndex = [];
-            var seenAgain = [];
+            var encloseThis = [];
             var resultArray = [];
 
             resultArray = this.cipherLetters.map(function (cipherLetter, index) {
                 var atIdx = lettersAlreadySeen.indexOf(cipherLetter);
                 if (atIdx > -1) {
                     //already seen this letter at atIdx
-                    seenAgain.push(atIdx);
-                    return '\\' + seenAtIndex[atIdx];
+                    return '\\' + encloseThis.push(atIdx);
                 } else {
                     lettersAlreadySeen.push(cipherLetter);
                     seenAtIndex.push(index);
@@ -92,7 +91,7 @@ document.addEventListener("DOMContentLoaded", function () {
             lettersAlreadySeen.forEach(function (el, i) {
                 //If there were multiple instances of this letter,
                 // surround the first instance with '()'
-                if (seenAgain.indexOf(i) > -1) {
+                if (encloseThis.indexOf(i) > -1) {
                     resultArray[i] = '(' + resultArray[i] + ')';
                 }
             });
