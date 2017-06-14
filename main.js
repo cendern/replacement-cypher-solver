@@ -2,14 +2,17 @@
 //  break somewhere in getRegExpInner
 
 //get the dictionary
-function reqListener() {
-    console.log(this.responseText);
-}
 
-//var oReq = new XMLHttpRequest();
-//oReq.open("GET", "20kcommonwords.txt");
-//oReq.send();
 var cipherTextSolver = {};
+(function () {
+    function reqListener() {
+        cipherTextSolver.wordList = this.responseText;
+    }
+    var oReq = new XMLHttpRequest();
+    oReq.open("GET", "20kcommonwords.txt");
+    oReq.send();
+}());
+
 document.addEventListener("DOMContentLoaded", function () {
     cipherTextSolver.celebrityCipherSettings = {
         allowDuplicates:false
@@ -223,7 +226,8 @@ document.addEventListener("DOMContentLoaded", function () {
             //return resultArray;
         },
         getRegExp: function () {
-            return new RegExp("^" + this.getRegExpInner().join('') + "$");
+            return new RegExp("\n" + this.getRegExpInner().join('') + "\n");
+            //return new RegExp("^" + this.getRegExpInner().join('') + "$");
         },
         isComplete: function () {
             //Tell whether all member CipherLetters have only one value
