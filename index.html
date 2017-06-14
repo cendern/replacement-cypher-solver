@@ -9,14 +9,22 @@
     <div>
         <div>
             <p>Enter your ciphertext below</p>
-            <textarea id="cipherTextAreaId">LX VNN UVK UMX AHVZX IXNNK JVPX VU AFFP V SHYBZXUU VU UMX PYP V JFTYX VZDHXUU XTXB OXDDXH</textarea>
+            <div contenteditable="true" id="cipherTextAreaId">LX VNN UVK UMX AHVZX IXNNK JVPX VU AFFP V SHYBZXUU VU UMX PYP V JFTYX VZDHXUU XTXB OXDDXH</div>
         </div>
-        <div>
+        <!--<div>
             <p>The area below is currently inactive, but when activated its purpose will be to decode non-word components. For instance, the 'Celebrity Cipher' quote ciphers from the Bee always end with the quotee's name, which won't be in the dictionary but we still want to decode it.</p>
             <textarea id="nonCipherTextAreaId"></textarea>
+        </div>-->
+        <button id="reread">Decrypt</button>
+        <button id="refine">Refine</button>
+        <div>
+            <p>Regular expressions:</p>
+            <ol id="resultTextAreaId"></ol>
         </div>
-        <button id="decrypt">Decrypt</button>
-        <textarea id="resultTextAreaId"></textarea>
+        <div>
+            <p>Cleartext:</p>
+            <ol id="clearText"></ol>
+        </div>
     </div>
     <script src="main.js"></script>
 </body>
