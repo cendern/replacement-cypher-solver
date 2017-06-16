@@ -9,7 +9,7 @@
     <div>
         <div>
             <p>Enter your ciphertext below</p>
-            <div contenteditable="true" id="cipherTextAreaId">LX VNN UVK UMX AHVZX IXNNK JVPX VU AFFP V SHYBZXUU VU UMX PYP V JFTYX VZDHXUU XTXB OXDDXH</div>
+            <div contenteditable id="cipherTextAreaId"></div>
         </div>
         <!--<div>
             <p>The area below is currently inactive, but when activated its purpose will be to decode non-word components. For instance, the 'Celebrity Cipher' quote ciphers from the Bee always end with the quotee's name, which won't be in the dictionary but we still want to decode it.</p>
@@ -18,14 +18,45 @@
         <button id="reread">Decrypt</button>
         <button id="refine">Refine</button>
         <div>
+            <div>
+                <div>
+                    Translate from:
+                    <div contenteditable id="translateFrom"></div>
+                </div>
+                <div>
+                    to:
+                    <div contenteditable id="translateTo"></div>
+                </div>
+                <button disabled id="applyTranslation">Apply</button>
+            </div>
+            <ul id="letterMappings">
+            </ul>
+        </div>
+        <div style="height:100px;overflow:scroll">
             <p>Regular expressions:</p>
             <ol id="resultTextAreaId"></ol>
+        </div>
+        <div style="height:100px;overflow:scroll">
+            <p>Possible matches:</p>
+            <ol id="matchesTextAreaId"></ol>
         </div>
         <div>
             <p>Cleartext:</p>
             <ol id="clearText"></ol>
         </div>
     </div>
+    <!--<script>
+        var Word_List = {};
+        Word_List.wordList = [];
+        Word_List.loadBank = function (array) {
+            Word_List.wordList = Word_List.wordList.concat(array);
+        }
+    </script>-->
+    <!--<script src="https://rawgit.com/JackolanternIR/WordList-JS/master/src/wordList.js"></script>-->
+    <!--<script src="https://rawgit.com/JackolanternIR/WordList-JS/master/src/wordBank.js"></script>-->
+    <!--<script src="https://rawgit.com/JackolanternIR/WordList-JS/master/src/wordList.min.js"></script>
+    <script src="https://rawgit.com/JackolanternIR/WordList-JS/master/src/wordBank.min.js"></script>-->
+    <script src="https://rawgit.com/cendern/replacement-cypher-solver/master/biglist.js"></script>
     <script src="main.js"></script>
 </body>
 </html>
