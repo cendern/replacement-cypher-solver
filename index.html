@@ -15,9 +15,9 @@
             <p>The area below is currently inactive, but when activated its purpose will be to decode non-word components. For instance, the 'Celebrity Cipher' quote ciphers from the Bee always end with the quotee's name, which won't be in the dictionary but we still want to decode it.</p>
             <textarea id="nonCipherTextAreaId"></textarea>
         </div>-->
-        <button id="reread">(Re)read</button>
         <div>
-            Automatically refine search:<input type="checkbox" id="refine">
+            <button id="reread">(Re)read</button>
+            Automatically refine search:<input type="checkbox" id="refine" disabled>
         </div>
         <div>
             <div>
@@ -34,7 +34,14 @@
             <ul id="letterMappings">
             </ul>
         </div>
-        <div>Show this many candidates:<input id="showCandidatesCount"/></div>
+        <div>
+            Moving the slider causes the algorithm to consider a different number of possible word inputs, which affects how the algorithm works.<br />
+            If it doesn't seem to be solving properly, fiddle with this slider.<br />
+            The further to the right you go, the more false positives you get.
+            <div>
+                Show this many candidates:<input id="showCandidatesCount" />
+            </div>
+        </div>
         <div>
             <p>Cleartext:</p>
             <ol id="clearText"></ol>
