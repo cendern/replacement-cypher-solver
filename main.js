@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
         //initialize datasets from scratch
         cipherTextSolver.cipherLetters = [];
         cipherTextSolver.cipherWords = [];
-        var wordsArray = text.split(' ');
+        var wordsArray = text.replace(/([a-z])([:;,.!?])/g, "$1 $2").split(' ');;
         wordsArray.forEach(function (el) {
             cipherTextSolver.cipherWords.push(
                 new cipherTextSolver.CipherWord(
