@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
         allowDuplicates:false
     }
     cipherTextSolver.settings = cipherTextSolver.celebrityCipherSettings;
-
+    cipherTextSolver.showThisManyCandidates = 15;
     //Function to pass out a new copy of the complete alphabet.
     cipherTextSolver.getAlphabetArray = function () {
         return 'abcdefghijklmnopqrstuvwxyz'.split('');
@@ -27,6 +27,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     cipherTextSolver.cipherLetters = [];
     cipherTextSolver.cipherWords = [];
+
+    (function(){
+        var i = document.getElementById('showCandidatesCount');
+        i.setAttribute("value",cipherTextSolver.showThisManyCandidates);
+        i.setAttribute("min",0);
+        i.setAttribute("max",50);
+        i.setAttribute("type","range");
+    }());
+
+    document.getElementById('showCandidatesCount').addEventListener('change', function (e) {
+        cipherTextSolver.showThisManyCandidates = e.target.valueAsNumber;
+    });
+    
 
     cipherTextSolver.parseInput = function (text) {
         //initialize datasets from scratch
@@ -55,15 +68,43 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('reread').onclick = function (e) {
         var ta = document.getElementById('cipherTextAreaId');
         cipherTextSolver.parseInput(ta.textContent);
-        cipherTextSolver.recreateRegexes();
-        cipherTextSolver.populateCandidateWords();
-        cipherTextSolver.recreateClearText();
+        cipherTextSolver.refine();
     };
 
-    document.getElementById('refine').onclick = function (e) {
-        cipherTextSolver.recreateRegexes();
-        cipherTextSolver.populateCandidateWords();
+    document.getElementById('refine').onchange = function (e) {
+        //Hook this in later to disable automatic refining.
+        //Maybe just disable looping refining.
+    }
+    cipherTextSolver.refine = function(){
+        var changed = true;
+        var candidateWordsArray, regexesArray;
+        var possibleCharsCnt;
+        //get all the candidate letters in all the cipherLetters
+        while (changed){
+            regexesArray = cipherTextSolver.recreateRegexes();
+            candidateWordsArray = cipherTextSolver.populateCandidateWords();
+
+            //save the previous count
+            var oldPossibleCharsCnt = possibleCharsCnt;
+            //Count how many possible chars there were
+            possibleCharsCnt = cipherTextSolver.cipherLetters.reduce(
+                function (accum, cipherLetter) {
+                    return accum + cipherLetter.possibleChars.length;
+                },0);
+            //Compare the counts.
+            //If the count didn't change, no chars were eliminated so
+            // stop looping.
+            changed = (oldPossibleCharsCnt !== possibleCharsCnt);
+        }
         cipherTextSolver.recreateClearText();
+        //If all of the words are complete then we're done, 
+        // otherwise populate the regexes and candidate words.
+        if (typeof(cipherTextSolver.cipherWords.find(function (cipherWord) {
+            return !cipherWord.isComplete();
+        })) !== 'undefined') {
+            cipherTextSolver.populateOLWithRegexes('clearText', regexesArray);
+            cipherTextSolver.populateOLWithButtons('clearText', candidateWordsArray);
+        } else alert("Hooray!");
     };
 
     cipherTextSolver.populateOL = function (olId, arry) {
@@ -78,9 +119,74 @@ document.addEventListener("DOMContentLoaded", function () {
             node.appendChild(li);
         });
     }
+    cipherTextSolver.populateOLWithRegexes = function (olId, arry) {
+        function addContentAtIndex(content, idx) {
+            //Find nth 'li' under the element with id 'olId', append the content
+            //nth-child is 1-indexed, idx is 0-indexed
+            var selectorString = "#" + olId + " li:nth-child(" + (idx + 1) + ")";
+            var li = document.querySelector(selectorString);
+            content.class = "regex";
+            li.appendChild(content);
+        }
 
-    cipherTextSolver.recreateRegexes = function() {
-        cipherTextSolver.populateOL('resultTextAreaId', cipherTextSolver.getRegexes());
+        arry.forEach(function (regexp, idx) {
+            addContentAtIndex(document.createTextNode(regexp), idx);
+        });
+    }
+
+    cipherTextSolver.populateOLWithButtons = function (olId, arry) {
+        function addContentAtIndex(content, idx) {
+            //Find nth 'li' under the element with id 'olId', append the content
+            //nth-child is 1-indexed, idx is 0-indexed
+            var selectorString = "#" + olId + " li:nth-child(" + (idx + 1) + ")";
+            var li = document.querySelector(selectorString);
+            content.class = "guess";
+            li.appendChild(content);
+        }
+
+        arry.forEach(function (cipherWordObj, idx) {
+            if (cipherWordObj instanceof cipherTextSolver.CipherWord) {
+                if (cipherWordObj.isComplete()) {
+                    //Word is fully solved, don't make a line for this entry
+                } else {
+                    var cipherWord = cipherWordObj.cipherLetters.map(function (c) { return c.cipherLetter }).join('');
+                    cipherWordObj.getPossibleWords().forEach(function (candidateWord) {
+                        var btn = document.createElement('button');
+                        btn.setAttribute('data-translationCandidate', candidateWord);
+                        btn.setAttribute('data-cipherWord', cipherWord);
+                        btn.textContent = candidateWord;
+                        btn.addEventListener('click', function (e) {
+                            var candidate = e.target.getAttribute('data-translationCandidate');
+                            var cipherWord = e.target.getAttribute('data-cipherWord');
+                            //use 'candidate' as the translation for 'cipherWord'
+                            cipherTextSolver.assertTranslation(cipherWord, candidate);
+
+                            //delete all the other buttons in this 'li'
+                            var parent = e.target.parentElement;
+                            var removeThis = parent.querySelector('button');
+                            while (removeThis !== null) {
+                                parent.removeChild(removeThis);
+                                removeThis = parent.querySelector('button');
+                            }
+                            //Call 'refine' since we made a change.
+                            cipherTextSolver.refine();
+                        });
+                        addContentAtIndex(btn,idx);
+                    });
+                }
+            } else {
+                //Append the "<guess> (+XXXX more)" entries
+                addContentAtIndex(document.createTextNode(cipherWordObj), idx);
+            }
+            //Add a click listener so the user can click that word 
+            // and it will enter its letters into the translation
+            // table.
+
+        });
+    }
+
+    cipherTextSolver.recreateRegexes = function () {
+        return cipherTextSolver.getRegexes()
     }
     cipherTextSolver.getRegexes = function () {
         return cipherTextSolver.cipherWords.map(function (word) {
@@ -89,7 +195,8 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     cipherTextSolver.populateCandidateWords = function () {
-        cipherTextSolver.populateOL('matchesTextAreaId', cipherTextSolver.getCandidateWords());
+        //cipherTextSolver.populateOLWithButtons('matchesTextAreaId', cipherTextSolver.getCandidateWords());
+        return cipherTextSolver.getCandidateWords();
     }
 
     cipherTextSolver.getCandidateWords = function () {
@@ -99,11 +206,11 @@ document.addEventListener("DOMContentLoaded", function () {
             matches = bigList.filter(function(el){
                 return el.match(rgxp);
             });
-            if (matches.length > 15) {
+            if (matches.length > cipherTextSolver.showThisManyCandidates) {
                 return matches[0] + "(+" + (matches.length - 1) + " more)";
             } else {
                 word.setPossibleWords(matches);
-                return matches.join('_');
+                return word;
             }
         })
     };
@@ -262,9 +369,13 @@ document.addEventListener("DOMContentLoaded", function () {
         isComplete: function () {
             //Tell whether all member CipherLetters have only one value
             return (
+                //Array.prototype.find returns 'undefined' if it 
+                // didn't find any matches, which in this case
+                // would mean that there was no more work to be
+                // done to solve it.
                 typeof(this.cipherLetters.find(function (el) {
                     return el.possibleChars.length != 1;
-                })) !== 'undefined'
+                })) === 'undefined'
             );
         },
         isWord: function () {
@@ -427,15 +538,7 @@ document.addEventListener("DOMContentLoaded", function () {
             var pos = orig.indexOf(el.cipherLetter);
             if (pos > -1) el.possibleChars = trans[pos];
         });
-        cipherTextSolver.recreateRegexes();
-        cipherTextSolver.recreateClearText();
     }
-    document.getElementById('reread').onclick = function (e) {
-        var ta = document.getElementById('cipherTextAreaId');
-        cipherTextSolver.parseInput(ta.textContent);
-        cipherTextSolver.recreateRegexes();
-        cipherTextSolver.recreateClearText();
-    };
 
     //Each letter is a property that has a value equal to its translated value.
     cipherTextSolver.translationTable = {};
@@ -493,6 +596,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     li.setAttribute('data-from', from);
                     ul.appendChild(li);
                 });
+                cipherTextSolver.refine();
             }
         }(fromEl, toEl));
         function deleteGuess(e) {

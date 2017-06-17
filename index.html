@@ -15,8 +15,10 @@
             <p>The area below is currently inactive, but when activated its purpose will be to decode non-word components. For instance, the 'Celebrity Cipher' quote ciphers from the Bee always end with the quotee's name, which won't be in the dictionary but we still want to decode it.</p>
             <textarea id="nonCipherTextAreaId"></textarea>
         </div>-->
-        <button id="reread">Decrypt</button>
-        <button id="refine">Refine</button>
+        <button id="reread">(Re)read</button>
+        <div>
+            Automatically refine search:<input type="checkbox" id="refine">
+        </div>
         <div>
             <div>
                 <div>
@@ -32,14 +34,7 @@
             <ul id="letterMappings">
             </ul>
         </div>
-        <div style="height:100px;overflow:scroll">
-            <p>Regular expressions:</p>
-            <ol id="resultTextAreaId"></ol>
-        </div>
-        <div style="height:100px;overflow:scroll">
-            <p>Possible matches:</p>
-            <ol id="matchesTextAreaId"></ol>
-        </div>
+        <div>Show this many candidates:<input id="showCandidatesCount"/></div>
         <div>
             <p>Cleartext:</p>
             <ol id="clearText"></ol>
